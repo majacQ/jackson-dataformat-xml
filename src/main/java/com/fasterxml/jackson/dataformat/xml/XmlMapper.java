@@ -108,6 +108,14 @@ public class XmlMapper extends ObjectMapper
             _mapper.setDefaultUseWrapper(state);
             return this;
         }
+
+        /**
+         * @since 2.14
+         */
+        public Builder xmlNameProcessor(XmlNameProcessor processor) {
+            _mapper.setXmlNameProcessor(processor);
+            return this;
+        }
     }
 
     protected final static JacksonXmlModule DEFAULT_XML_MODULE = new JacksonXmlModule();
@@ -278,6 +286,13 @@ public class XmlMapper extends ObjectMapper
             }
         }
         return this;
+    }
+
+    /**
+     * @since 2.14
+     */
+    public void setXmlNameProcessor(XmlNameProcessor processor) {
+        ((XmlFactory)_jsonFactory).setXmlNameProcessor(processor);
     }
 
     /*

@@ -4,11 +4,50 @@ Project: jackson-dataformat-xml
 === Releases ===
 ------------------------------------------------------------------------
 
-2.14.0 (not yet released)
+2.14.3 (05-May-2023)
 
-No changes since 2.13
+No changes since 2.14.2
 
-2.13.1 (not yet released)
+2.14.2 (28-Jan-2023)
+
+* Upgrade Woodstox to 6.5.0 for a fix to OSGi metadata
+
+2.14.1 (21-Nov-2022)
+
+No changes since 2.14.0
+
+2.14.0 (05-Nov-2022)
+
+#491: `XmlMapper` 2.12 regression: no default no-arg ctor found
+ (reported by Volkan Y)
+#498: `XmlMapper` fails to parse XML array when the array only has one level
+ (reported by Eric L)
+#531: Add mechanism for processing invalid XML names (transforming to valid ones)
+ (contributed by Daniel M)
+#538: Required attribute of `@JsonProperty` is ignored when deserializing from XML
+ (reported by johandeschutterGET@github)
+#545: `@JacksonXmlText` does not work when paired with `@JsonRawValue`
+ (reported by James D)
+ (fix contributed by Jonas K)
+#550: Use of `ClassLoader`-taking `newFactory()` variant breaks applications
+  using default JDK XML implementation
+ (reported by David-F E)
+* Upgrade Woodstox to 6.4.0 for a fix to [CVE-2022-40152]
+
+2.13.5 (23-Jan-2023)
+
+* Upgrade Woodstox to 6.4.0 for a fix to [CVE-2022-40152]
+
+2.13.4 (03-Sep-2022)
+
+#536: Upgrade Woodstox to 6.3.1 to get OSGi metadata
+
+2.13.3 (14-May-2022)
+2.13.2 (06-Mar-2022)
+
+No changes since 2.13.1
+
+2.13.1 (19-Dec-2021)
 
 #493: SequenceWriter returns NPE when trying XML serialization
  (reported by Moribund7@github)
@@ -43,6 +82,16 @@ No changes since 2.13
 - Rename `XmlFactoryBuilder` methods "inputFactory()"->"xmlInputFactory()",
   "outputFactory()" -> "xmlOutputFactory()"
 - Woodstox dependency 6.2.6 (from 6.2.4)
+
+2.12.7 (26-May-2022)
+
+No changes since 2.12.6
+
+2.12.6 (15-Dec-2021)
+
+#490: Problem when using defaultUseWrapper(false) in combination with
+  polymorphic types
+ (reported by Daniel K; fix contributed by Lennart G)
 
 2.12.5 (27-Aug-2021)
 
@@ -313,7 +362,7 @@ No changes since 2.7.8
 
 #210: In `ToXmlGenerator` `WRITE_BIGDECIMAL_AS_PLAIN` is used the wrong way round
  (reported by xmluzr@github)
-#211: Disable `SUPPORT_DTD` for `XMLInputFactory` unless explicitly overridden
+#211: Disable `SUPPORT_DTD` for `XMLInputFactory` unless explicitly overridden [CVE-2016-7051]
 
 2.7.7 (27-Aug-2016)
 
@@ -330,7 +379,7 @@ No changes since 2.7.4
 #178: Problem with polymorphic serialization, inclusion type of
   `As.WRAPPER_OBJECT`, extra tag
 #190: Ensure that defaults for `XMLInputFactory` have expansion of external
-  parsed general entities disabled
+  parsed general entities disabled [CVE-2016-3720]
 #191: Strange behaviour of an empty item (but with whitespace between
   start/end tags) in List
  (reported by Hronom@github)

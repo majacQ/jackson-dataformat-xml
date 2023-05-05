@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 import com.fasterxml.jackson.dataformat.xml.PackageVersion;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlNameProcessor;
 import com.fasterxml.jackson.dataformat.xml.util.CaseInsensitiveNameSet;
 import com.fasterxml.jackson.dataformat.xml.util.StaxUtil;
 
@@ -252,7 +253,7 @@ public class FromXmlParser
      */
 
     public FromXmlParser(IOContext ctxt, int genericParserFeatures, int xmlFeatures,
-            ObjectCodec codec, XMLStreamReader xmlReader)
+             ObjectCodec codec, XMLStreamReader xmlReader, XmlNameProcessor tagProcessor)
         throws IOException
     {
         super(genericParserFeatures);
@@ -261,7 +262,7 @@ public class FromXmlParser
         _objectCodec = codec;
         _parsingContext = XmlReadContext.createRootContext(-1, -1);
         _xmlTokens = new XmlTokenStream(xmlReader, ctxt.contentReference(),
-                    _formatFeatures);
+                    _formatFeatures, tagProcessor);
 
         final int firstToken;
         try {
@@ -278,7 +279,8 @@ public class FromXmlParser
         } else {
             switch (firstToken) {
             case XmlTokenStream.XML_START_ELEMENT:
-            case XmlTokenStream.XML_DELAYED_START_ELEMENT:
+            // Removed from 2.14:
+            // case XmlTokenStream.XML_DELAYED_START_ELEMENT:
                 _nextToken = JsonToken.START_OBJECT;
                 break;
             case XmlTokenStream.XML_ROOT_TEXT:

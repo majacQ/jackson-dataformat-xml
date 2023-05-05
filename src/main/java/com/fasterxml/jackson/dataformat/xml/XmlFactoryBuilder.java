@@ -6,6 +6,7 @@ import javax.xml.stream.XMLOutputFactory;
 import com.fasterxml.jackson.core.TSFBuilder;
 import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+import com.fasterxml.jackson.dataformat.xml.util.StaxUtil;
 
 /**
  * {@link com.fasterxml.jackson.core.TSFBuilder} implementation
@@ -63,6 +64,13 @@ public class XmlFactoryBuilder extends TSFBuilder<XmlFactory, XmlFactoryBuilder>
      */
     protected ClassLoader _classLoaderForStax;
 
+    /**
+     * See {@link XmlNameProcessor} and {@link XmlNameProcessors}
+     *
+     * @since 2.14
+     */
+    protected XmlNameProcessor _nameProcessor;
+
     /*
     /**********************************************************
     /* Life cycle
@@ -73,6 +81,7 @@ public class XmlFactoryBuilder extends TSFBuilder<XmlFactory, XmlFactoryBuilder>
         _formatParserFeatures = XmlFactory.DEFAULT_XML_PARSER_FEATURE_FLAGS;
         _formatGeneratorFeatures = XmlFactory.DEFAULT_XML_GENERATOR_FEATURE_FLAGS;
         _classLoaderForStax = null;
+        _nameProcessor = XmlNameProcessors.newPassthroughProcessor();
     }
 
     public XmlFactoryBuilder(XmlFactory base) {
@@ -82,6 +91,7 @@ public class XmlFactoryBuilder extends TSFBuilder<XmlFactory, XmlFactoryBuilder>
         _xmlInputFactory = base._xmlInputFactory;
         _xmlOutputFactory = base._xmlOutputFactory;
         _nameForTextElement = base._cfgNameForTextElement;
+        _nameProcessor = base._nameProcessor;
         _classLoaderForStax = null;
     }
 
@@ -100,10 +110,7 @@ public class XmlFactoryBuilder extends TSFBuilder<XmlFactory, XmlFactoryBuilder>
     }
 
     protected XMLInputFactory defaultInputFactory() {
-        // 05-Jul-2021, tatu: as per [dataformat-xml#483], consider ClassLoader
-        XMLInputFactory xmlIn = XMLInputFactory.newFactory(XMLInputFactory.class.getName(),
-                staxClassLoader());
-
+        XMLInputFactory xmlIn = StaxUtil.defaultInputFactory(_classLoaderForStax);
         // as per [dataformat-xml#190], disable external entity expansion by default
         xmlIn.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
         // and ditto wrt [dataformat-xml#211], SUPPORT_DTD
@@ -119,9 +126,7 @@ public class XmlFactoryBuilder extends TSFBuilder<XmlFactory, XmlFactoryBuilder>
     }
 
     protected XMLOutputFactory defaultOutputFactory() {
-        // 05-Jul-2021, tatu: as per [dataformat-xml#483], consider ClassLoader
-        XMLOutputFactory xmlOut = XMLOutputFactory.newFactory(XMLOutputFactory.class.getName(),
-                staxClassLoader());
+        XMLOutputFactory xmlOut = StaxUtil.defaultOutputFactory(_classLoaderForStax);
         // [dataformat-xml#326]: Better ensure namespaces get built properly:
         xmlOut.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
         return xmlOut;
@@ -131,6 +136,10 @@ public class XmlFactoryBuilder extends TSFBuilder<XmlFactory, XmlFactoryBuilder>
     protected ClassLoader staxClassLoader() {
         return (_classLoaderForStax == null) ?
                 getClass().getClassLoader() : _classLoaderForStax;
+    }
+
+    public XmlNameProcessor xmlNameProcessor() {
+        return _nameProcessor;
     }
 
     // // // Parser features
@@ -251,6 +260,14 @@ public class XmlFactoryBuilder extends TSFBuilder<XmlFactory, XmlFactoryBuilder>
      */
     public XmlFactoryBuilder staxClassLoader(ClassLoader cl) {
         _classLoaderForStax = cl;
+        return _this();
+    }
+
+    /**
+     * @since 2.14
+     */
+    public XmlFactoryBuilder xmlNameProcessor(XmlNameProcessor nameProcessor) {
+        _nameProcessor = nameProcessor;
         return _this();
     }
     

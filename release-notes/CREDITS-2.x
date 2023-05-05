@@ -179,3 +179,37 @@ Fabian Meumertzheim (fmeum@github)
  (2.13.0)
 * Reported #465: ArrayIndexOutOfBoundsException in UTF8Reader (ossfuzz)
  (2.13.0)
+
+James Dudley (@dudleycodes)
+
+* Reported #545: `@JacksonXmlText` does not work when paired with `@JsonRawValue`
+ (2.14.0)
+
+Jonas Konrad (@yawkat)
+
+* Contributed fix for #545: `@JacksonXmlText` does not work when paired with `@JsonRawValue`
+ (2.14.0)
+
+Volkan Yazıcı (vy@github)
+
+* Reported #491: `XmlMapper` 2.12 regression: no default no-arg ctor found
+ (2.14.0)
+
+Daniel Mensinger (mensinda@github)
+
+* Contributed #531: Add mechanism for processing invalid XML names (transforming to
+  valid ones)
+ (2.14.0)
+
+Eric Law (ericcwlaw@github)
+
+* Reported #498: `XmlMapper` fails to parse XML array when the array only has one level
+ (2.14.0)
+
+David F. Elliott (dfelliott@github)
+
+* Reported #550: Use of `ClassLoader`-taking `newFactory()` variant breaks applications
+  using default JDK XML implementation
+ (2.14.0)
+
+

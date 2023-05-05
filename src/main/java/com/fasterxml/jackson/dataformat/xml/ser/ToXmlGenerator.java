@@ -10,6 +10,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import com.fasterxml.jackson.dataformat.xml.XmlNameProcessor;
 import org.codehaus.stax2.XMLStreamWriter2;
 import org.codehaus.stax2.ri.Stax2WriterAdapter;
 
@@ -152,6 +153,13 @@ public class ToXmlGenerator
      */
     protected XmlPrettyPrinter _xmlPrettyPrinter;
 
+    /**
+     * Escapes names with invalid XML characters
+     *
+     * @since 2.14
+     */
+    protected XmlNameProcessor _nameProcessor;
+
     /*
     /**********************************************************
     /* XML Output state
@@ -198,6 +206,13 @@ public class ToXmlGenerator
      */
     protected LinkedList<QName> _elementNameStack = new LinkedList<QName>();
 
+    /**
+     * Reusable internal value object
+     *
+     * @since 2.14
+     */
+    protected XmlNameProcessor.XmlName _nameToEncode = new XmlNameProcessor.XmlName();
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -205,7 +220,7 @@ public class ToXmlGenerator
      */
 
     public ToXmlGenerator(IOContext ctxt, int stdFeatures, int xmlFeatures,
-            ObjectCodec codec, XMLStreamWriter sw)
+            ObjectCodec codec, XMLStreamWriter sw, XmlNameProcessor nameProcessor)
     {
         super(stdFeatures, codec);
         _formatFeatures = xmlFeatures;
@@ -213,6 +228,7 @@ public class ToXmlGenerator
         _originalXmlWriter = sw;
         _xmlWriter = Stax2WriterAdapter.wrapIfNecessary(sw);
         _stax2Emulation = (_xmlWriter != sw);
+        _nameProcessor = nameProcessor;
         _xmlPrettyPrinter = (_cfgPrettyPrinter instanceof XmlPrettyPrinter) ?
         		(XmlPrettyPrinter) _cfgPrettyPrinter : null;
     }
@@ -476,9 +492,12 @@ public class ToXmlGenerator
         }
         // Should this ever get called?
         String ns = (_nextName == null) ? "" : _nextName.getNamespaceURI();
-        setNextName(new QName(ns, name));
+        _nameToEncode.namespace = ns;
+        _nameToEncode.localPart = name;
+        _nameProcessor.encodeName(_nameToEncode);
+        setNextName(new QName(_nameToEncode.namespace, _nameToEncode.localPart));
     }
-    
+
     @Override
     public final void writeStringField(String fieldName, String value) throws IOException
     {
@@ -732,6 +751,8 @@ public class ToXmlGenerator
 
             if (_nextIsAttribute) {
                 _xmlWriter.writeAttribute(_nextName.getNamespaceURI(), _nextName.getLocalPart(), text);
+            } else if (checkNextIsUnwrapped()) {
+                _xmlWriter.writeRaw(text);
             } else {
                 _xmlWriter.writeStartElement(_nextName.getNamespaceURI(), _nextName.getLocalPart());
                 _xmlWriter.writeRaw(text);
@@ -756,6 +777,8 @@ public class ToXmlGenerator
 
             if (_nextIsAttribute) {
                 _xmlWriter.writeAttribute(_nextName.getNamespaceURI(), _nextName.getLocalPart(), text.substring(offset, offset + len));
+            } else if (checkNextIsUnwrapped()) {
+                _xmlWriter.writeRaw(text, offset, len);
             } else {
                 _xmlWriter.writeStartElement(_nextName.getNamespaceURI(), _nextName.getLocalPart());
                 _xmlWriter.writeRaw(text, offset, len);
@@ -779,6 +802,8 @@ public class ToXmlGenerator
         try {
             if (_nextIsAttribute) {
                 _xmlWriter.writeAttribute(_nextName.getNamespaceURI(), _nextName.getLocalPart(), new String(text, offset, len));
+            } else if (checkNextIsUnwrapped()) {
+                _xmlWriter.writeRaw(text, offset, len);
             } else {
                 _xmlWriter.writeStartElement(_nextName.getNamespaceURI(), _nextName.getLocalPart());
                 _xmlWriter.writeRaw(text, offset, len);
